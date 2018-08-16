@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "589110385346",
+    "firebase_url": "https://happymind-258aa.firebaseio.com",
+    "project_id": "happymind-258aa",
+    "storage_bucket": "happymind-258aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:589110385346:android:8586a61578f1466f",
+        "android_client_info": {
+          "package_name": "company.sukiasyan.happymind"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "589110385346-96tp5pgimi01rqknen5bhjhr6h5t80sd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "company.sukiasyan.happymind",
+            "certificate_hash": "cce6e7e75b462f2167f65c1af4c2466abc642bd1"
+          }
+        },
+        {
+          "client_id": "589110385346-g25tu7b0n28qpq5blou1e2tmg34fd62r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "company.sukiasyan.happymind",
+            "certificate_hash": "1faa9cf1668a0fad5c7dd9bff4fb3922a7e272fd"
+          }
+        },
+        {
+          "client_id": "589110385346-5dntcjeda8q9kl233i7e5f8oveji0s3f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYOxK1gYV_YuHd5lIbnO_J_EWin7s2VG4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "589110385346-5dntcjeda8q9kl233i7e5f8oveji0s3f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="30dp"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".views.activities.AddChildActivity">
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/child_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/photo_placeholder"
+            app:civ_border_color="@color/grey"
+            app:civ_border_width="1dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/last_name_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/last_name_input"
+            android:text="Фамилия*"
+            app:layout_constraintTop_toBottomOf="@id/child_image" />
+
+        <EditText
+            android:id="@+id/last_name_input"
+            style="@style/edit_profile_input"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@+id/last_name_label" />
+
+        <TextView
+            android:id="@+id/name_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/name_input"
+            android:text="Имя*"
+            app:layout_constraintTop_toBottomOf="@id/last_name_input" />
+
+        <EditText
+            android:id="@+id/name_input"
+            style="@style/edit_profile_input"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@+id/name_label" />
+
+
+        <TextView
+            android:id="@+id/patronymic_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/patronymic_input"
+            android:text="Отчество*"
+            app:layout_constraintTop_toBottomOf="@id/name_input" />
+
+        <EditText
+            android:id="@+id/patronymic_input"
+            style="@style/edit_profile_input"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@+id/patronymic_label" />
+
+        <TextView
+            android:id="@+id/date_of_birthday_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/date_of_birthday_input"
+            android:text="Дата рождения*"
+            app:layout_constraintTop_toBottomOf="@id/patronymic_input" />
+
+        <EditText
+            android:id="@+id/date_of_birthday_input"
+            style="@style/edit_profile_input"
+            android:inputType="date"
+            app:layout_constraintTop_toBottomOf="@id/date_of_birthday_label" />
+
+        <TextView
+            android:id="@+id/sex_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/sex_input"
+            android:text="Пол*"
+            app:layout_constraintTop_toBottomOf="@id/date_of_birthday_input" />
+
+        <RadioGroup
+            android:id="@+id/sex_input"
+            style="@style/edit_profile_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/sex_label">
+
+            <RadioButton
+                android:id="@+id/radio_sex_men"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Мужской" />
+
+            <RadioButton
+                android:id="@+id/radio_sex_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Женский" />
+        </RadioGroup>
+
+
+        <TextView
+            android:id="@+id/phone_label"
+            style="@style/edit_profile_label"
+            android:labelFor="@id/phone_input"
+            android:text="Номер телефона"
+            app:layout_constraintTop_toBottomOf="@id/sex_input" />
+
+        <EditText
+            android:id="@+id/phone_input"
+            style="@style/edit_profile_input"
+            android:inputType="phone"
+            app:layout_constraintTop_toBottomOf="@id/phone_label" />
+
+        <Button
+            android:id="@+id/register_btn"
+            style="@style/login_btn"
+            android:text="Регистрация"
+            app:layout_constraintTop_toBottomOf="@id/phone_input" />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

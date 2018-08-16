@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.activities.SetCourseActivitySecond">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="24dp">
+
+        <EditText
+            android:id="@+id/minAge"
+            style="@style/login_input"
+            android:hint="Минимальный возраст"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@id/maxAge"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/maxAge"
+            style="@style/login_input"
+            android:hint="Максимальный возраст"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@id/duration"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/minAge" />
+
+        <EditText
+            android:id="@+id/duration"
+            style="@style/login_input"
+            android:hint="Продолжительность в минутах"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view_classes"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/maxAge" />
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_classes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:layout_constraintBottom_toTopOf="@id/add_class_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/duration"
+            tools:context="company.sukiasyan.happymind.views.activities.SetCourseActivitySecond"
+            tools:listitem="@layout/item_name_and_delete" />
+
+        <Button
+            android:id="@+id/add_class_btn"
+            style="@style/login_btn"
+            android:text="Добавить группу"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recycler_view_classes" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="24dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view_abonements"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/add_class_btn" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_abonements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/add_abonement_btn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            tools:context="company.sukiasyan.happymind.views.activities.SetCourseActivitySecond"
+            tools:listitem="@layout/item_name_and_delete" />
+
+        <Button
+            android:id="@+id/add_abonement_btn"
+            style="@style/login_btn"
+            android:text="Добавить абонемент"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/add_btn"
+            app:layout_constraintTop_toBottomOf="@id/recycler_view_abonements" />
+
+        <Button
+            android:id="@+id/add_btn"
+            style="@style/login_btn"
+            android:text="Добавить"
+            android:visibility="gone"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            app:layout_constraintTop_toBottomOf="@id/add_abonement_btn" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

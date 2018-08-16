@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">HappyMind</string>
+    <string name="title_schedule">Расписание</string>
+    <string name="title_courses">Курсы</string>
+    <string name="title_profile">Профиль</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="tab_text_1">Понедельник</string>
+    <string name="tab_text_2">Вторник</string>
+    <string name="tab_text_3">Среда</string>
+    <string name="tab_text_4">Четверг</string>
+    <string name="tab_text_5">Пятница</string>
+    <string name="tab_text_6">Суббота</string>
+    <string name="tab_text_7">Воскресенье</string>
+
+    <string name="create_account">У вас нет аккаунта? Создать аккаунт</string>
+    <string name="title_activity_pay_subscription">Выберите абонемент</string>
+    <string name="spinner_teacher_prompt">Выберите преподавателя</string>
+    <string name="spinner_days_of_week_prompt">Выберите день недели</string>
+
+    <string name="title_activity_set_course_first">Обшая информация</string>
+    <string name="title_activity_set_course_second">Возрастная группа</string>
+
+    <string-array name="days_of_week">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+        <item>Воскресенье</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:id="@+id/nested_scroll_view"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <ImageView
+            android:id="@+id/icon_name"
+            style="@style/course_detail_item_image"
+            android:src="@drawable/ic_course_name"
+            app:layout_constraintBottom_toTopOf="@id/icon_place"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/item_name"
+            style="@style/course_detail_item_text"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_name"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@id/icon_name"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/icon_name" />
+
+        <ImageView
+            android:id="@+id/icon_place"
+            style="@style/course_detail_item_image"
+            android:src="@drawable/ic_course_place"
+            app:layout_constraintBottom_toTopOf="@id/icon_duration"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_name" />
+
+
+        <TextView
+            android:id="@+id/item_place"
+            style="@style/course_detail_item_text"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_place"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@id/icon_place"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/icon_place" />
+
+        <ImageView
+            android:id="@+id/icon_duration"
+            style="@style/course_detail_item_image"
+            android:src="@drawable/ic_duration"
+            app:layout_constraintBottom_toTopOf="@id/icon_age"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_place" />
+
+
+        <TextView
+            android:id="@+id/item_duration"
+            style="@style/course_detail_item_text"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_duration"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@id/icon_duration"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/icon_duration" />
+
+
+        <ImageView
+            android:id="@+id/icon_age"
+            style="@style/course_detail_item_image"
+            android:src="@drawable/ic_course_age"
+            app:layout_constraintBottom_toTopOf="@id/icon_balance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_duration" />
+
+
+        <TextView
+            android:id="@+id/item_age"
+            style="@style/course_detail_item_text"
+            android:text="dsfsdfeswfewssddfsd"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_age"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@id/icon_age"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/icon_age" />
+
+        <ImageView
+            android:id="@+id/icon_balance"
+            style="@style/course_detail_item_image"
+            android:src="@drawable/ic_balance"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_age" />
+
+
+        <TextView
+            android:id="@+id/item_balance"
+            style="@style/course_detail_item_text"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_balance"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@id/icon_balance"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/icon_balance" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/grey"
+            app:layout_constraintBottom_toTopOf="@id/photo_teacher"
+            app:layout_constraintTop_toBottomOf="@+id/icon_balance" />
+
+        <ImageView
+            android:id="@+id/photo_teacher"
+            style="@style/course_detail_item_image"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+
+        <TextView
+            android:id="@+id/item_teacher"
+            style="@style/course_detail_item_text"
+            app:layout_constraintBottom_toBottomOf="@+id/photo_teacher"
+            app:layout_constraintLeft_toRightOf="@id/photo_teacher"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/photo_teacher" />
+
+        <TextView
+            android:id="@+id/plane_your_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="Выберите подходящее расписание"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/colorPrimaryTextDefaultMaterialLight"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view"
+            app:layout_constraintTop_toBottomOf="@id/photo_teacher" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plane_your_schedule" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.NestedScrollView>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="30dp">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".views.activities.LoginActivity">
+
+        <ImageView
+            android:id="@+id/logo_image"
+            android:layout_width="match_parent"
+            android:layout_height="187dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@color/colorPrimary" />
+
+        <EditText
+            android:id="@+id/name_input"
+            style="@style/login_input"
+            android:layout_marginTop="50dp"
+            android:hint="Фамилия"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@id/logo_image" />
+
+        <EditText
+            android:id="@+id/last_name_input"
+            style="@style/login_input"
+            android:hint="Имя"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@id/name_input" />
+
+        <EditText
+            android:id="@+id/patronymic_input"
+            style="@style/login_input"
+            android:hint="Отчество"
+            android:inputType="textPersonName"
+
+            app:layout_constraintTop_toBottomOf="@id/last_name_input" />
+
+        <EditText
+            android:id="@+id/password_input"
+            style="@style/login_input"
+            android:hint="Пароль"
+            android:inputType="textPassword"
+            app:layout_constraintTop_toBottomOf="@id/patronymic_input" />
+
+        <EditText
+            android:id="@+id/phone_input"
+            style="@style/login_input"
+            android:hint="Телефон"
+            android:inputType="phone"
+            app:layout_constraintTop_toBottomOf="@id/password_input" />
+
+        <EditText
+            android:id="@+id/phone_other_input"
+            style="@style/login_input"
+            android:hint="Телефон другого родителя(если есть)"
+            android:inputType="phone"
+            app:layout_constraintTop_toBottomOf="@id/phone_input" />
+
+        <EditText
+            android:id="@+id/adress_input"
+            style="@style/login_input"
+            android:hint="Адрес"
+            android:inputType="text"
+            app:layout_constraintTop_toBottomOf="@id/phone_other_input" />
+
+        <TextView
+            android:id="@+id/branch_name"
+            style="@style/login_input"
+            android:text="Выберите ближайший филиал"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/adress_input" />
+
+        <RadioGroup
+            android:id="@+id/branch_input"
+            style="@style/radio_group"
+            app:layout_constraintTop_toBottomOf="@id/branch_name">
+
+            <RadioButton
+                android:id="@+id/radioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Переделкино" />
+
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Хамовники" />
+
+            <RadioButton
+                android:id="@+id/radioButton3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Марфино" />
+
+            <RadioButton
+                android:id="@+id/radioButton4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Алексеевский" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/register_btn"
+            style="@style/login_btn"
+            android:text="Регистрация"
+            app:layout_constraintTop_toBottomOf="@id/branch_input" />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="company.sukiasyan.happymind">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".utils.DrawerApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".views.activities.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.activities.ScheduleActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.RegisterActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.AddChildActivity"
+            android:label="Добавление ребенка"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.CoursesActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.CoursesDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar.Collapsing" />
+        <activity
+            android:name=".views.activities.PaySubscriptionActivity"
+            android:label="@string/title_activity_pay_subscription"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.SetCourseActivityFirst"
+            android:label="@string/title_activity_set_course_first"
+            android:parentActivityName=".views.activities.CoursesActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="company.sukiasyan.happymind.views.activities.CoursesActivity" />
+        </activity>
+        <activity
+            android:name=".views.activities.SetCourseActivitySecond"
+            android:label="@string/title_activity_set_course_second"
+            android:parentActivityName=".views.activities.SetCourseActivityFirst"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="company.sukiasyan.happymind.views.activities.SetCourseActivityFirst" />
+        </activity>
+        <activity
+            android:name=".views.activities.AgeGroupDetailActivity"
+            android:parentActivityName=".views.activities.SetCourseActivitySecond"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="company.sukiasyan.happymind.views.activities.SetCourseActivitySecond" />
+        </activity>
+    </application>
+
+</manifest>

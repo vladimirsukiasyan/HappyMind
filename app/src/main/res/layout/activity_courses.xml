@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.activities.CoursesActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <include layout="@layout/toolbar" />
+
+
+    </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/content_courses" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginBottom="75dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:src="@drawable/ic_add"
+        android:visibility="gone"
+        app:fabSize="normal" />
+
+    <com.aurelhubert.ahbottomnavigation.AHBottomNavigation xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/bottom_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:layout_gravity="bottom"
+        android:background="@color/white" />
+
+
+</android.support.design.widget.CoordinatorLayout>
