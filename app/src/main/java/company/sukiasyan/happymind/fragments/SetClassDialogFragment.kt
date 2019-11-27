@@ -15,9 +15,7 @@ import android.widget.Button
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Child
 import company.sukiasyan.happymind.models.Course.AgeGroup.Class
-import company.sukiasyan.happymind.utils.TAG
-import company.sukiasyan.happymind.utils.getDatabase
-import company.sukiasyan.happymind.utils.showToast
+import company.sukiasyan.happymind.utils.*
 import company.sukiasyan.happymind.views.adapters.ChildrenAdapter
 import kotlinx.android.synthetic.main.fragment_set_class_dialog.view.*
 import java.util.*
@@ -40,15 +38,19 @@ class SetClassDialogFragment : DialogFragment() {
 
     private lateinit var viewAdapter: ChildrenAdapter
     private var listener: OnClassFragmentFinishListener? = null
-    private val actionDoneListener: (View) -> Unit = {
-        with(mClass) {
-            places = it.places_edit.text.toString().toInt()
-            occupied_places = it.occupied_places_edit.text.toString().toInt()
-            reserved_places = it.reserved_places_edit.text.toString().toInt()
-            classTime.dayOfWeek = it.day_of_week_spinner.selectedItem.toString()
+    private val actionDoneListener: (View) -> Boolean = {
+        val error = validateEditView(it.places_edit, it.occupied_places_edit, it.reserved_places_edit)
+        if (!error) {
+            with(mClass) {
+                places = it.places_edit.text.toString().toInt()
+                occupied_places = it.occupied_places_edit.text.toString().toInt()
+                reserved_places = it.reserved_places_edit.text.toString().toInt()
+                classTime.dayOfWeek = it.day_of_week_spinner.selectedItem.toString()
+            }
+            listener?.onClassFragmentFinish(mClass, mPosition)
+            dismiss()
         }
-        listener?.onClassFragmentFinish(mClass, mPosition)
-        dismiss()
+        error
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,19 +69,22 @@ class SetClassDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         Log.d(TAG, "SetClassDialogFragment: onCreateView()")
-        //TODO можно добавить title
 
-        downloadChildren()
         val rootView = inflater.inflate(R.layout.fragment_set_class_dialog, container, false)
 
         with(rootView) {
-            val index = resources.getStringArray(R.array.days_of_week).indexOf(mClass.classTime.dayOfWeek)
-            day_of_week_spinner.setSelection(if (index == -1) 0 else index)
-            initTimePicker(this)
-            places_edit.setText(mClass.places.toString())
-            occupied_places_edit.setText(mClass.occupied_places.toString())
-            reserved_places_edit.setText(mClass.reserved_places.toString())
+            if (!isAdding()) {
+                downloadChildren()
+                val index = resources.getStringArray(R.array.days_of_week).indexOf(mClass.classTime.dayOfWeek)
+                day_of_week_spinner.setSelection(index)
+                places_edit.setText(mClass.places.toString())
+                occupied_places_edit.setText(mClass.occupied_places.toString())
+                reserved_places_edit.setText(mClass.reserved_places.toString())
+            } else {
+                day_of_week_spinner.setSelection(0)
+            }
 
+            initTimePicker(this)
             if (!mIsLargeLayout) {
                 cancel_button.visibility = View.GONE
                 ok_button.visibility = View.GONE
@@ -116,7 +121,13 @@ class SetClassDialogFragment : DialogFragment() {
         Log.d(TAG, "SetClassDialogFragment: onOptionsItemSelected()")
         return when (item.itemId) {
             R.id.action_done -> {
-                actionDoneListener(view!!)
+                val error=actionDoneListener(view!!)
+                if(!error){
+                    fragmentManager?.popBackStack()
+                }
+                true
+            }
+            android.R.id.home -> {
                 fragmentManager?.popBackStack()
                 true
             }
@@ -148,22 +159,7 @@ class SetClassDialogFragment : DialogFragment() {
         fun onClassFragmentFinish(clazz: Class, position: Int)
     }
 
-    companion object {
-        private const val ARG_ITEM = "class"
-        private const val ARG_ITEM_POSITION = "position"
-
-        @JvmStatic
-        fun newInstance(clazz: Class, position: Int) =
-                SetClassDialogFragment().apply {
-                    arguments = Bundle().apply {
-                        putParcelable(ARG_ITEM, clazz)
-                        putInt(ARG_ITEM_POSITION, position)
-                    }
-                }
-    }
-
     private fun downloadChildren() {
-        //TODO это же заюзать когда учитель загружает детишек
         mClass.children.forEach { reference ->
             getDatabase().document(reference)
                     .get()
@@ -178,7 +174,7 @@ class SetClassDialogFragment : DialogFragment() {
 
     private fun initTimePicker(view: View) {
         with(mClass.classTime) {
-            if (isAdd()) {
+            if (isAdding()) {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
                 val minute = calendar.get(Calendar.MINUTE)
@@ -194,14 +190,14 @@ class SetClassDialogFragment : DialogFragment() {
                     //first time dialog is closed
                     startClassHour = hourOfDay
                     startClassMinute = minute
+                    button.text = "${timeTemplate.format(startClassHour, startClassMinute)} - ${timeTemplate.format(endClassHour, endClassMinute)}"
 
                     //Call second time dialog
                     TimePickerDialog(activity, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
                         //second time dialog is closed
                         endClassHour = hourOfDay
                         endClassMinute = minute
-                        //TODO выводить время в формате HH:MM (12:00 instead of 12:0)
-                        button.text = "$startClassHour:$startClassMinute - $endClassHour:$endClassMinute"
+                        button.text = "${timeTemplate.format(startClassHour, startClassMinute)} - ${timeTemplate.format(endClassHour, endClassMinute)}"
 
                     }, endClassHour, endClassMinute, true).apply {
                         setCancelable(false)
@@ -215,9 +211,23 @@ class SetClassDialogFragment : DialogFragment() {
                     show()
                 }
             }
-            view.time_btn.text = "$startClassHour:$startClassMinute - $endClassHour:$endClassMinute"
+            view.time_btn.text = "${timeTemplate.format(startClassHour, startClassMinute)} - ${timeTemplate.format(endClassHour, endClassMinute)}"
         }
     }
 
-    private fun isAdd() = mPosition == -1
+    private fun isAdding() = mPosition == -1
+
+    companion object {
+        private const val ARG_ITEM = "class"
+        private const val ARG_ITEM_POSITION = "position"
+
+        @JvmStatic
+        fun newInstance(clazz: Class, position: Int) =
+                SetClassDialogFragment().apply {
+                    arguments = Bundle().apply {
+                        putParcelable(ARG_ITEM, clazz)
+                        putInt(ARG_ITEM_POSITION, position)
+                    }
+                }
+    }
 }

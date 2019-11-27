@@ -1,5 +1,6 @@
 package company.sukiasyan.happymind.views.activities
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,8 +10,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.RadioButton
+import android.widget.Toast
 import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Parent
 import company.sukiasyan.happymind.utils.*
@@ -33,48 +39,75 @@ class RegisterActivity : AppCompatActivity(), EmailFragment.Listener, NamePassFr
 
     }
 
-    override fun onNext(email: String) {
-        mEmail = email
-        getAuth().fetchSignInMethodsForEmail(email).addOnCompleteListener {
-            if (it.isSuccessful) {
-                if (it.result.signInMethods?.isEmpty() == true) {
-                    supportFragmentManager.beginTransaction().replace(R.id.frame_layout, NamePassFragment())
-                            .addToBackStack(null)
-                            .commit()
-                } else {
-                    showToast("This email is already created")
+    override fun onNext(email: EditText) {
+        mEmail = email.text.toString()
+        getAuth().fetchSignInMethodsForEmail(mEmail)
+                .addOnSuccessListener {
+                    if (it.signInMethods?.isEmpty() == true) {
+                        supportFragmentManager.beginTransaction().replace(R.id.frame_layout, NamePassFragment())
+                                .addToBackStack(null)
+                                .commit()
+                    } else {
+                        email.error = "Пользователь с такой почтой уже существует"
+                    }
                 }
-            }
-        }
+                .addOnFailureListener { exception ->
+                    when (exception) {
+                        is FirebaseNetworkException -> {
+                            email.error = "Отсутствует интеренет-соединение!"
+                        }
+                        is FirebaseAuthInvalidCredentialsException -> {
+                            email.error = "Введён неправильный формат email!"
+                        }
+                    }
+                }
     }
 
+
     override fun onRegister(name: String, lastName: String, patronymic: String, pass: String, phone: String, phone_other_parent: String, adress: String, branch: String) {
-        getAuth().createUserWithEmailAndPassword(mEmail, pass).addOnCompleteListener {
-            if (it.isSuccessful) {
-                val parent = Parent(name, lastName, patronymic, phone, phone_other_parent, adress, branch)
-                getDatabase().collection("parents")
-                        .document(it.result.user.uid)
-                        .set(parent)
-                        .addOnCompleteListener {
-                            if (it.isSuccessful) {
-                                Log.d(TAG, "onRegister: user has been created")
-                                getAuth().signInWithEmailAndPassword(mEmail, pass)
-                                        .addOnSuccessListener {
-                                            Log.d(TAG, "onRegister: signIn")
-                                            saveUserBranch(parent.branch)
-                                            startActivity(Intent(this, AddChildActivity::class.java))
-                                            finish()
-                                        }
-                            } else {
-                                sentErrorToast(it)
-                            }
-                        }
-                getDatabase().collection("accounts").document(it.result.user.uid)
-                        .set(mapOf("role" to "parent", "branch" to branch))
-            } else {
-                sentErrorToast(it)
-            }
+        //TODO в AddChildActivity повторяется код progressDialog
+        val progressDialog = ProgressDialog(this).apply {
+            setProgressStyle(ProgressDialog.STYLE_SPINNER)
+            setMessage("Пожалуйста, подождите...")
+            setCancelable(false)
         }
+        getAuth().createUserWithEmailAndPassword(mEmail, pass)
+                .addOnSuccessListener {
+                    progressDialog.show()
+                    val parent = Parent(name, lastName, patronymic, phone, phone_other_parent, adress, branch)
+                    getDatabase().collection("parents")
+                            .document(it.user.uid)
+                            .set(parent)
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    Log.d(TAG, "onRegister: user has been created")
+                                    getAuth().signInWithEmailAndPassword(mEmail, pass)
+                                            .addOnSuccessListener {
+                                                Log.d(TAG, "onRegister: signIn")
+                                                saveUserBranch(parent.branch)
+                                                saveUserRole("parent")
+                                                progressDialog.dismiss()
+                                                startActivity(Intent(this, AddChildActivity::class.java))
+                                                finish()
+                                            }
+                                } else {
+                                    sentErrorToast(it)
+                                }
+                            }
+                    getDatabase().collection("accounts").document(it.user.uid)
+                            .set(mapOf("role" to "parent", "branch" to branch))
+                }
+                .addOnFailureListener { exception ->
+                    //TODO проверка на ошибку выделить в отдельную функцию(повторяется код в LoginActivity, TeacherDetailActivity
+                    when (exception) {
+                        is FirebaseAuthWeakPasswordException -> {
+                            password_input.error = "Пароль должен содержать не менее 6 символов!"
+                            password_input.requestFocus()
+                        }
+                    }
+                }
+
+
     }
 
     private fun sentErrorToast(task: Task<out Any>) {
@@ -89,7 +122,7 @@ class EmailFragment : Fragment() {
     private lateinit var mListener: Listener
 
     interface Listener {
-        fun onNext(email: String)
+        fun onNext(email: EditText)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -100,7 +133,7 @@ class EmailFragment : Fragment() {
         next_btn.setOnClickListener {
             val error = validateEditView(email_input)
             if (!error) {
-                mListener.onNext(email_input.text.toString())
+                mListener.onNext(email_input)
             }
         }
     }
@@ -129,7 +162,10 @@ class NamePassFragment : Fragment() {
             Log.d(TAG, "button ic clicked: ")
 
             val errorEdit = validateEditView(name_input, last_name_input, password_input, phone_input, adress_input)
-            val errorRadioGroup = this@NamePassFragment.context!!.validateRadioGgroup(branch_input)
+            val errorRadioGroup = validateRadioGgroup(branch_input)
+            if (errorRadioGroup) {
+                activity?.showToast("Выберите филиал, пожалуйста", Toast.LENGTH_LONG)
+            }
             val error = errorEdit && errorRadioGroup
 
             if (!error) {

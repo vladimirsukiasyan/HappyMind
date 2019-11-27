@@ -3,14 +3,10 @@ package company.sukiasyan.happymind.views.activities
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import com.google.firebase.firestore.DocumentReference
 import company.sukiasyan.happymind.R
-import company.sukiasyan.happymind.models.Course
-import company.sukiasyan.happymind.utils.TAG
-import company.sukiasyan.happymind.utils.getDatabase
-import company.sukiasyan.happymind.utils.getUserBranch
-import company.sukiasyan.happymind.utils.getUserRole
+import company.sukiasyan.happymind.models.Course.Class
+import company.sukiasyan.happymind.utils.*
 import company.sukiasyan.happymind.views.adapters.SectionsPagerAdapter
 import kotlinx.android.synthetic.main.activity_schedule.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -18,6 +14,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 class ScheduleActivity : BasicActivity(0) {
 
     private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
+    private val scheduleMap: Map<String, MutableList<Class>> = mapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +23,13 @@ class ScheduleActivity : BasicActivity(0) {
         //setting standard views
         setContentView(R.layout.activity_schedule)
         setSupportActionBar(toolbar)
+        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, scheduleMap)
+        container.adapter = mSectionsPagerAdapter
+        container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
+        tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
 
         //setting special view for type of user
         authenticationSpecialUI(savedInstanceState)
-        container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
-        tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
     }
 
     private fun authenticationSpecialUI(savedInstanceState: Bundle?) {
@@ -40,7 +39,7 @@ class ScheduleActivity : BasicActivity(0) {
                 downloadChildren()
             }
             "admin" -> {
-                downloadCourses()
+                downloadAdminClassReferences()
             }
             "teacher" -> {
 //                downloadTeacherCourses()
@@ -50,47 +49,71 @@ class ScheduleActivity : BasicActivity(0) {
         setUpBottomNavigationView(role)
     }
 
-    private fun downloadCourses() {
-        getDatabase().collection("filials").document(getUserBranch())
-                .collection("courses")
-                .get()
-                .addOnSuccessListener {
-                    courses = it.toObjects(Course::class.java)
-                    Log.d(TAG, "ScheduleActivity: downloadCourses() $courses")
-                    initContentUI()
-                }
+    override fun childrenDownloadListener() {
+        drawerProfiles()
+        downloadChildClassReferences()
     }
 
-    override fun initContentUI() {
-        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-        container.adapter = mSectionsPagerAdapter
+    override fun coursesDownloadListener() {
+        reInitContentUI()
     }
 
-    private fun reInitContentUI() {
+    override fun childChangedListener() {
+        downloadChildClassReferences()
+    }
+
+    override fun reInitContentUI() {
         mSectionsPagerAdapter.notifyDataSetChanged()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
+    private fun downloadChildClassReferences() {
+        getDatabase().collection("parents").document(getAuth().uid!!)
+                .collection("children").document(activeChild.name)
+                .collection("classes")
+                .addSnapshotListener { querySnapshot, _ ->
+                    querySnapshot?.let { classes ->
+                        for (clazz in classes) {
+                            val endFlag = clazz == classes.last()
+                            downloadSchedule(clazz.reference, endFlag)
+                        }
+                    }
+                }
     }
 
+    private fun downloadAdminClassReferences() {
+        //TODO ЕСЛИ СЛИШКОМ ДОЛГО БУДЕТ ЗАГРУЖАТЬ ВСЕ, ТО СДЕЛАТЬ reInitContentUI() в каждом вызове, а не в конце
+        getDatabase().collection("filials").document(getUserBranch())
+                .collection("courses")
+                .addSnapshotListener { querySnapshot, _ ->
+                    querySnapshot?.let { courses ->
+                        for (course in courses.documents) {
+                            getDatabase().document(course.reference.toString()).collection("classes")
+                                    .addSnapshotListener { querySnapshot, _ ->
+                                        querySnapshot?.let { classes ->
+                                            for (clazz in classes) {
+                                                val endFlag = course == courses.last() && clazz == classes.last()
+                                                downloadSchedule(clazz.reference, endFlag)
+                                            }
+                                        }
+                                    }
+                        }
+                    }
+                }
+    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
+    private fun downloadSchedule(reference: DocumentReference, endFlag: Boolean) {
+        reference.addSnapshotListener { documentSnapshot, _ ->
+            documentSnapshot?.let {
+                val clazz = it.toObject(Class::class.java)!!
+                val oldClass = scheduleMap[clazz.classTime.dayOfWeek]?.find { it.id == clazz.id }
+                oldClass?.let {
+                    scheduleMap[clazz.classTime.dayOfWeek]?.remove(oldClass)
+                }
+                scheduleMap[clazz.classTime.dayOfWeek]!!.add(clazz)
+                if (endFlag) {
+                    reInitContentUI()
+                }
+            }
         }
-    }
-
-    override fun onRestart() {
-        Log.d(TAG, "ScheduleActivity: onRestart()")
-        reInitContentUI()
-        super.onRestart()
-    }
-
-    override fun onStart() {
-        Log.d(TAG, "ScheduleActivity: onStart()")
-        super.onStart()
     }
 }

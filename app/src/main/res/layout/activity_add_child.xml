@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_marginBottom="30dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:layout_height="match_parent">
 
     <android.support.constraint.ConstraintLayout
@@ -26,7 +28,7 @@
 
         <TextView
             android:id="@+id/last_name_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/last_name_input"
             android:text="Фамилия*"
             app:layout_constraintTop_toBottomOf="@id/child_image" />
@@ -39,7 +41,7 @@
 
         <TextView
             android:id="@+id/name_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/name_input"
             android:text="Имя*"
             app:layout_constraintTop_toBottomOf="@id/last_name_input" />
@@ -53,7 +55,7 @@
 
         <TextView
             android:id="@+id/patronymic_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/patronymic_input"
             android:text="Отчество*"
             app:layout_constraintTop_toBottomOf="@id/name_input" />
@@ -66,9 +68,9 @@
 
         <TextView
             android:id="@+id/date_of_birthday_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/date_of_birthday_input"
-            android:text="Дата рождения*"
+            android:text="Дата рождения(ДД.ММ.ГГГГ)*"
             app:layout_constraintTop_toBottomOf="@id/patronymic_input" />
 
         <EditText
@@ -79,7 +81,7 @@
 
         <TextView
             android:id="@+id/sex_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/sex_input"
             android:text="Пол*"
             app:layout_constraintTop_toBottomOf="@id/date_of_birthday_input" />
@@ -109,7 +111,7 @@
 
         <TextView
             android:id="@+id/phone_label"
-            style="@style/edit_profile_label"
+            style="@style/edit_label"
             android:labelFor="@id/phone_input"
             android:text="Номер телефона"
             app:layout_constraintTop_toBottomOf="@id/sex_input" />

@@ -29,6 +29,8 @@ fun Context.saveActiveChildId(childId: Long) {
 
 fun Context.getActiveChildId() = getSharedPreferences(CHILD_PREFENECES, Context.MODE_PRIVATE).getLong("id", 0L)
 
+fun Context.isFirstChild()=!getSharedPreferences(CHILD_PREFENECES,Context.MODE_PRIVATE).contains("id")
+
 //fun Context.saveActiveChild(child: Child) {
 //    val edit = getSharedPreferences(CHILD_PREFENECES, Context.MODE_PRIVATE).edit()
 //    edit.putLong("id", child.id)

@@ -31,7 +31,7 @@
         <activity
             android:name=".views.activities.AddChildActivity"
             android:label="Добавление ребенка"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.AppBarOverlay" />
         <activity
             android:name=".views.activities.CoursesActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -67,6 +67,18 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="company.sukiasyan.happymind.views.activities.SetCourseActivitySecond" />
+        </activity>
+        <activity
+            android:name=".views.activities.TeachersActivity"
+            android:label="@string/title_activity_teachers"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.activities.TeacherDetailActivity"
+            android:parentActivityName=".views.activities.TeachersActivity"
+            android:theme="@style/AppTheme.NoActionBar.Collapsing">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="company.sukiasyan.happymind.views.activities.TeachersActivity" />
         </activity>
     </application>
 

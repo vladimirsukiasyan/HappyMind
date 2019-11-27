@@ -24,33 +24,58 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/day_of_week_spinner" />
 
-    <EditText
-        android:id="@+id/places_edit"
-        style="@style/login_input"
-        android:hint="Кол-во мест в группе"
-        android:inputType="number"
+    <TextView
+        android:id="@+id/places_label"
+        style="@style/edit_label"
+        android:labelFor="@id/places_edit"
+        android:text="Кол-во мест в группе*"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/time_btn" />
 
     <EditText
-        android:id="@+id/occupied_places_edit"
+        android:id="@+id/places_edit"
         style="@style/login_input"
-        android:hint="Кол-во занятых мест в группе"
+        android:hint=""
         android:inputType="number"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/places_label" />
+
+    <TextView
+        android:id="@+id/occupied_places_label"
+        style="@style/edit_label"
+        android:labelFor="@id/occupied_places_edit"
+        android:text="Кол-во занятых мест в группе*"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/places_edit" />
+
+    <EditText
+        android:id="@+id/occupied_places_edit"
+        style="@style/login_input"
+        android:inputType="number"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/occupied_places_label" />
+
+    <TextView
+        android:id="@+id/reserved_places_label"
+        style="@style/edit_label"
+        android:labelFor="@id/reserved_places_edit"
+        android:text="Кол-во резервных мест в группе*"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/occupied_places_edit" />
 
 
     <EditText
         android:id="@+id/reserved_places_edit"
         style="@style/login_input"
-        android:hint="Кол-во резервных мест в группе"
         android:inputType="number"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/occupied_places_edit" />
+        app:layout_constraintTop_toBottomOf="@id/reserved_places_label" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_children"

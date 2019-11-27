@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -12,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.StringSignature
 import com.firebase.ui.storage.images.FirebaseImageLoader
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Course
@@ -46,6 +48,7 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
             oldCourse = course.copy()
             toolbar.title = "Добавление курса"
         }
+
         mPosition = intent!!.getIntExtra(ARG_ITEM_POSITION, -1)
 
         if (savedInstanceState == null && !isAdding()) {
@@ -54,19 +57,23 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
             course_description.setText(course.description)
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            course_image.transitionName = course.id
+        }
 
         next_btn.setOnClickListener {
             //if teachers list is empty (download is not completed) => ignore user
-            if (teachers.isNotEmpty()) {
+            if (teachers.isNotEmpty() && bundle != Bundle.EMPTY) {
                 val error = validateEditView(course_name, course_description)
                 if (!error) {
-                    setAllPropertyInCourse()
-
-                    val intent = Intent(this, SetCourseActivitySecond::class.java)
-                    intent.putExtra(EXTRA_BUNDLE, bundle)
-                    intent.putExtra(EXTRA_COURSE, course)
-                    intent.putExtra(ARG_ITEM_POSITION, mPosition)
-                    startActivityForResult(intent, REQUEST_SECOND_ACTIVITY)
+                    val error = validateAndSetAllProperty()
+                    if (!error) {
+                        val intent = Intent(this, SetCourseActivitySecond::class.java)
+                        intent.putExtra(EXTRA_BUNDLE, bundle)
+                        intent.putExtra(EXTRA_COURSE, course)
+                        intent.putExtra(ARG_ITEM_POSITION, mPosition)
+                        startActivityForResult(intent, REQUEST_SECOND_ACTIVITY)
+                    }
                 }
             }
         }
@@ -85,25 +92,31 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_add) {
-            //updating course
-            val error = validateEditView(course_name, course_description)
-            if (!error) {
-                setAllPropertyInCourse()
-
-                uploadCourse()
-                finish()
+    override fun onOptionsItemSelected(item: MenuItem) =
+            when (item.itemId) {
+                R.id.action_add -> {
+                    //updating course
+                    val error = validateAndSetAllProperty()
+                    if (!error) {
+                        uploadCourse()
+                        finish()
+                    }
+                    true
+                }
+                android.R.id.home -> {
+                    supportFinishAfterTransition()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
             }
-        }
 
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun setAllPropertyInCourse() {
+    private fun validateAndSetAllProperty(): Boolean {
+        val error = validateEditView(course_name, course_description)
         course.name = course_name.text.toString()
         course.description = course_description.text.toString()
         course.teacher_uid = teachers[course_teacher_spinner.selectedItemPosition].uid
+        bundle = getBundleForTransmit()
+        return error
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -134,7 +147,7 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
     private fun compressPhoto(): ByteArray {
         val bitmap = (course_image.drawable as BitmapDrawable).bitmap
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         return baos.toByteArray()
     }
 
@@ -144,20 +157,20 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
                 .using(FirebaseImageLoader())
                 .load(reference)
                 .asBitmap()
+                .signature(StringSignature(course.photo_uri))
                 .placeholder(R.drawable.item_placeholder)
                 .error(R.drawable.item_placeholder)
                 .into(course_image)
-        bundle = getBundleForTransmit()
     }
 
     private fun downloadTeacherList() {
+
 //        val progressDialog = ProgressDialog(this).apply {
 //            setProgressStyle(ProgressDialog.STYLE_SPINNER)
 //            setMessage("Загрузка данных. Пожалуйста, подождите...")
 //            setCancelable(false)
 //        }
 //        progressDialog.show()
-
 
         getDatabase().collection("teachers")
                 .get()
@@ -199,7 +212,6 @@ class SetCourseActivityFirst : SetCourseBaseActivity() {
     }
 
     companion object {
-        const val GALLERY_PICKER_CODE = 1
         const val REQUEST_SECOND_ACTIVITY = 100
     }
 }

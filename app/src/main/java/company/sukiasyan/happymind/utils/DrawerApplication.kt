@@ -17,6 +17,7 @@ class DrawerApplication : Application() {
                 Glide.with(this@DrawerApplication)
                         .using(FirebaseImageLoader())
                         .load(reference)
+                        .centerCrop()
                         .placeholder(R.drawable.profile_placeholder)
                         .error(R.drawable.profile_placeholder)
                         .into(imageView)

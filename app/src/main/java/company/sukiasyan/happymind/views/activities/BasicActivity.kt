@@ -23,15 +23,17 @@ import kotlinx.android.synthetic.main.toolbar.*
 
 abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
 
-    companion object {
-        lateinit var headerResult: AccountHeader
-        lateinit var result: Drawer
-        lateinit var activeChild: Child
-        var courses: List<Course> = listOf()
-        var children = mutableListOf<Child>()
-    }
+    lateinit var headerResult: AccountHeader
+    lateinit var result: Drawer
+    var activeChild: Child = Child()
+    var courses: List<Course> = listOf()
+    var children = mutableListOf<Child>()
 
-    abstract fun initContentUI()
+
+    abstract fun reInitContentUI()
+    abstract fun childrenDownloadListener()
+    abstract fun coursesDownloadListener()
+    abstract fun childChangedListener()
 
     fun setUpBottomNavigationView(userRole: String) {
         with(bottom_navigation_view) {
@@ -54,7 +56,7 @@ abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
                 val nextActivity =
                         when (getItem(position).getTitle(this@BasicActivity)) {
                             "Расписание" -> ScheduleActivity::class.java
-                            "Курсы" -> CoursesActivity::class.java
+//                            "Курсы" -> CoursesActivity::class.java
                             else -> {
                                 Log.d(TAG, "unknown nav item has been clicked!")
                                 null
@@ -97,7 +99,7 @@ abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
                             else -> {
                                 activeChild = children.find { it.id == profile.identifier }!!
                                 saveActiveChildId(profile.identifier)
-                                this@BasicActivity.onRestart()
+                                childChangedListener()
                             }
                         }
                         false
@@ -105,10 +107,19 @@ abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
                 }
             }
 
-//            sectionHeader("MaterialDrawerKt demos") {
-//                divider = false
-//            }
-            primaryItem("Выйти") {
+            if (role == "admin") {
+                primaryItem {
+                    name = "Преподаватели"
+                    icon = R.drawable.ic_course_teacher
+                    onClick { _ ->
+                        startActivity(Intent(this@BasicActivity, TeachersActivity::class.java))
+                        true
+                    }
+                }
+            }
+
+            primaryItem {
+                name = "Выйти"
                 icon = R.drawable.ic_sing_out
                 onClick { _ ->
                     getAuth().signOut()
@@ -119,35 +130,12 @@ abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
         }
     }
 
-    fun downloadChildren() {
-//        getDatabase().collection("parents").document(getAuth().uid!!)
-//                .collection("children").get()
-//                .addOnCompleteListener {
-//                    if (it.isSuccessful) {
-//                        children = it.result.toObjects(Child::class.java)
-//                        Log.d(TAG, "downloadList: $children")
-//                        drawerProfiles()
-//                    }
-//                }
-        //SET REALTIME UPDATES
-        getDatabase().collection("parents").document(getAuth().uid!!)
-                .collection("children").addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    firebaseFirestoreException?.let {
-                        Log.d(TAG, "Listen failed.", firebaseFirestoreException)
-                        return@addSnapshotListener
-                    }
-                    querySnapshot?.let {
-                        children = it.toObjects(Child::class.java)
-                        Log.d(TAG, "downloadChildren() snapshotListener: $children")
-                        drawerProfiles()
-                    }
-                }
-    }
-
-    private fun drawerProfiles() {
+    fun drawerProfiles() {
         var count = 0
         children.forEach {
-            headerResult.clear()
+            headerResult.removeProfileByIdentifier(it.id)
+        }
+        children.forEach {
             headerResult.addProfile(ProfileDrawerItem().apply {
                 withName(it.name)
                 withIcon("http://users/parents/${getAuth().uid}/${it.name}/${it.name}")
@@ -156,8 +144,50 @@ abstract class BasicActivity(val navItemNumber: Int) : AppCompatActivity() {
         }
         headerResult.setActiveProfile(getActiveChildId())
         activeChild = children.find { it.id == getActiveChildId() }!!
-        initContentUI()
     }
+
+    fun downloadChildren() {
+        //SET REALTIME UPDATES
+        getDatabase().collection("parents").document(getAuth().uid!!)
+                .collection("children").addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    firebaseFirestoreException?.let {
+                        Log.d(TAG, "BasicActivity: downloadChildren(): Listen failed.", firebaseFirestoreException)
+                        return@addSnapshotListener
+                    }
+                    querySnapshot?.let {
+                        children.clear()
+                        children.addAll(it.toObjects(Child::class.java))
+                        Log.d(TAG, "downloadChildren() snapshotListener: $children")
+                        childrenDownloadListener()
+                    }
+                }
+    }
+
+    fun downloadCourses() {
+        getDatabase().collection("filials").document(getUserBranch())
+                .collection("courses")
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    firebaseFirestoreException?.let {
+                        Log.d(TAG, "CoursesActivity: downloadCourses() Listen failed.")
+                        return@addSnapshotListener
+                    }
+                    querySnapshot?.let {
+                        courses = it.toObjects(Course::class.java)
+
+                        Log.d(TAG, "CoursesActivity: downloadCourses() $courses")
+                        coursesDownloadListener()
+                    }
+                }
+    }
+
+//    fun filterCourseByAge() {
+//        val age = activeChild.getAge()
+//        courses = courses.filter { course ->
+//            course.ageGroups.any {
+//                it.minAge <= age && it.maxAge >= age
+//            }
+//        }
+//    }
 
     override fun onBackPressed() {
         if (result.isDrawerOpen) {

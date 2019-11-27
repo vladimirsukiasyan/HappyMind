@@ -8,7 +8,7 @@ import android.view.MenuItem
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Child.ChildCourse.ChildAbonement
 import company.sukiasyan.happymind.utils.showToast
-import company.sukiasyan.happymind.utils.updateChildCourse
+//import company.sukiasyan.happymind.utils.updateChildCourse
 import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.childCourse
 import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.courseAgeGroup
 import company.sukiasyan.happymind.views.adapters.SubscriptionChildAdapter
@@ -29,7 +29,7 @@ class PaySubscriptionActivity : AppCompatActivity() {
             //TODO пока заказчик не решит вопрос с оплатой, добавление абонемента будет происходить без оплаты
             childCourse.abonement = ChildAbonement(it.countOfClasses, it.countOfClasses, it.price)
             //загрузка обновлений
-            updateChildCourse(indexCourse)
+//            updateChildCourse(indexCourse)
             //переход в расписание
             startActivity(Intent(this, ScheduleActivity::class.java))
             showToast("Оплата проведена успешно. Ваше расписание обновлено!")

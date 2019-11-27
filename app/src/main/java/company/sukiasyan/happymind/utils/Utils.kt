@@ -1,27 +1,30 @@
 package company.sukiasyan.happymind.utils
 
 import android.content.Context
+import android.support.design.widget.TextInputLayout
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import company.sukiasyan.happymind.views.activities.BasicActivity
-import company.sukiasyan.happymind.views.activities.BasicActivity.Companion.activeChild
-import company.sukiasyan.happymind.views.activities.CoursesDetailActivity
-import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.childCourse
-import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.course
+import java.text.SimpleDateFormat
 import java.util.*
 
 const val TAG = "Activities"
 const val EXTRA_COURSE = "course"
+const val EXTRA_TEACHER = "teacher"
 const val EXTRA_BUNDLE = "bundle"
 const val EXTRA_PHOTO = "photo"
+const val EXTRA_CHILD = "child"
+const val EXTRA_SCHEDULE = "schedule"
 const val ARG_ITEM_POSITION = "position"
 const val EXTRA_AGE_GROUP = "age_group"
+const val GALLERY_PICKER_CODE = 1
+val dateFormatter = SimpleDateFormat("dd.MM.yyyy")
+
+const val timeTemplate = "%1$02d:%2$02d"
 
 //get static Firebase tools
 fun getAuth() = FirebaseAuth.getInstance()
@@ -45,16 +48,38 @@ fun validateEditView(vararg fieldsEdit: EditText): Boolean {
     return error
 }
 
-fun Context.validateRadioGgroup(vararg fieldsRadioGroup: RadioGroup): Boolean {
+fun validateTextInputLayout(vararg fieldsEdit: TextInputLayout): Boolean {
+    var error = false
+    fieldsEdit.forEach {
+        if (it.editText!!.text.toString().isEmpty()) {
+            it.isErrorEnabled = true
+            it.error = "Обязательное поле"
+            error = true
+        } else {
+            it.isErrorEnabled = false
+        }
+    }
+    return error
+}
+
+fun validateRadioGgroup(vararg fieldsRadioGroup: RadioGroup): Boolean {
     var error = false
     fieldsRadioGroup.forEach {
         if (it.checkedRadioButtonId == -1) {
-            showToast("Выберите пол, пожалуйста", Toast.LENGTH_LONG)
             error = true
         }
     }
     return error
 }
+
+fun validateDateOfBirthday(date_of_birthday: String) =
+        try {
+            dateFormatter.isLenient = false
+            dateFormatter.parse(date_of_birthday)
+            !date_of_birthday.matches("([0-9]{2}).([0-9]{2}).([0-9]{4})".toRegex())
+        } catch (e: Exception) {
+            true
+        }
 
 fun calcYears(birthDay: GregorianCalendar, checkDay: GregorianCalendar): Int {
     var years = checkDay.get(GregorianCalendar.YEAR) - birthDay.get(GregorianCalendar.YEAR)
@@ -71,31 +96,31 @@ fun calcYears(birthDay: GregorianCalendar, checkDay: GregorianCalendar): Int {
     return years
 }
 
-fun getCourseAgeGroup() =
-        CoursesDetailActivity.course.ageGroups.find {
-            val age = BasicActivity.activeChild.getAge()
-            it.minAge <= age && it.maxAge >= age
-        }!!
-
-fun Context.updateChildCourse(index: Int) {
-    //replace or add item
-    if (index == -1) { //in case adding course
-        activeChild.courses.add(childCourse)
-    } else { //in case replacing course
-        activeChild.courses[index] = childCourse
-    }
-
-    getDatabase().collection("parents").document(getAuth().uid!!)
-            .collection("children").document(activeChild.name)
-            .set(activeChild)
-            .addOnSuccessListener {
-                Log.d(TAG, "updateChildCourse: данные о курсе ${course.name} у ${activeChild.name} успешно обновлены")
-            }
-    getDatabase().collection("filials").document(getUserBranch())
-            .collection("courses").document(course.id)
-            .set(course)
-}
-
-fun getChildReference() = "parents/${getAuth().uid}/children/${activeChild.name}"
+//fun getCourseAgeGroup() =
+//        CoursesDetailActivity.course.ageGroups.find {
+//            val age = BasicActivity.activeChild.getAge()
+//            it.minAge <= age && it.maxAge >= age
+//        }!!
+//
+//fun Context.updateChildCourse(index: Int) {
+//    //replace or add item
+//    if (index == -1) { //in case adding course
+//        activeChild.courses.add(childCourse)
+//    } else { //in case replacing course
+//        activeChild.courses[index] = childCourse
+//    }
+//
+//    getDatabase().collection("parents").document(getAuth().uid!!)
+//            .collection("children").document(activeChild.name)
+//            .set(activeChild)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "updateChildCourse: данные о курсе ${course.name} у ${activeChild.name} успешно обновлены")
+//            }
+//    getDatabase().collection("filials").document(getUserBranch())
+//            .collection("courses").document(course.id)
+//            .set(course)
+//}
+//
+//fun getChildReference() = "parents/${getAuth().uid}/children/${activeChild.name}"
 
 fun Context.getColorById(id: Int) = ContextCompat.getColor(this, id)

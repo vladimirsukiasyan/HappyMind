@@ -1,5 +1,6 @@
 package company.sukiasyan.happymind.views.activities
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -14,6 +15,7 @@ import company.sukiasyan.happymind.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
+    private lateinit var progressDialog:ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,36 +32,46 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         when (v.id) {
             R.id.login_btn -> {
                 Log.d(TAG, "onClick: SignIn")
-                val email = email_input.text.toString()
-                val password = password_input.text.toString()
+                val error=validateEditView(email_input,password_input)
 
-                if (validate(email, password)) {
+                if (!error) {
+                    progressDialog = ProgressDialog(this).apply {
+                        setProgressStyle(ProgressDialog.STYLE_SPINNER)
+                        setMessage("Пожалуйста, подождите...")
+                        setCancelable(false)
+                    }
                     getAuth().signInWithEmailAndPassword(email_input.text.toString(), password_input.text.toString())
                             .addOnSuccessListener {
                                 authorization(it.user.uid)
                             }
                             .addOnFailureListener { exception ->
+                                progressDialog.dismiss()
                                 when (exception) {
                                     is FirebaseNetworkException -> {
-                                        showToast("Отсутствует интеренет соединение.")
+                                        email_input.error="Отсутствует интеренет-соединение."
+                                        password_input.error="Отсутствует интеренет-соединение."
                                     }
                                     is FirebaseAuthUserCollisionException -> {
-                                        showToast("Ваш аккаунт уже используется на другом устройстве!")
+                                        email_input.error="Ваш аккаунт уже используется на другом устройстве!"
                                     }
                                     is FirebaseAuthInvalidCredentialsException -> {
                                         when (exception.errorCode) {
-                                            "ERROR_INVALID_EMAIL" -> showToast("Введён неправильный формат email!")
-                                            "ERROR_WRONG_PASSWORD" -> showToast("Введен неправильный пароль!")
+                                            "ERROR_INVALID_EMAIL" -> {
+                                                email_input.error="Введён неправильный формат email!"
+                                                email_input.requestFocus()
+                                            }
+                                            "ERROR_WRONG_PASSWORD" -> {
+                                                password_input.error="Введен неправильный пароль!"
+                                                password_input.requestFocus()
+                                            }
                                         }
                                     }
                                     is FirebaseAuthInvalidUserException -> {
-                                        showToast("Пользователя с такой почтой не существует!")
+                                        email_input.error="Пользователя с такой почтой не существует!"
+                                        email_input.requestFocus()
                                     }
                                 }
                             }
-                } else {
-                    Log.d(TAG, "onClick: SignIn Validate Failure")
-                    showToast("Пожалуйста, заполните все поля")
                 }
             }
             R.id.create_account_text -> {
@@ -73,6 +85,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         getDatabase().collection("accounts").document(uid)
                 .get()
                 .addOnSuccessListener {
+                    progressDialog.dismiss()
                     val role = it.getString("role")!!
                     val branch = it.getString("branch")
                     saveUserRole(role)
@@ -83,7 +96,4 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                     startActivity(Intent(this, ScheduleActivity::class.java))
                 }
     }
-
-    private fun validate(email: String, password: String) =
-            email.isNotEmpty() && password.isNotEmpty()
 }

@@ -9,6 +9,7 @@ import android.util.Log
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Course.AgeGroup.Abonement
 import company.sukiasyan.happymind.utils.TAG
+import company.sukiasyan.happymind.utils.validateEditView
 import kotlinx.android.synthetic.main.fragment_set_abonement_dialog.view.*
 
 /**
@@ -40,31 +41,34 @@ class SetAbonementDialogFragment : DialogFragment() {
         mPosition = arguments!!.getInt(ARG_ITEM_POSITION)
     }
 
-//    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//        Log.d(TAG, "SetAbonementDialogFragment: onCreateView()")
-//
-//
-//        return view
-//    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Log.d(TAG, "SetAbonementDialogFragment: onCreateDialog()")
         val view = activity?.layoutInflater?.inflate(R.layout.fragment_set_abonement_dialog, null)!!
-        view.count_edit.setText(mAbonement.countOfClasses.toString())
-        view.price_edit.setText(mAbonement.price.toString())
-        return AlertDialog.Builder(activity)
+        if(!isAdding()){
+            view.count_edit.setText(mAbonement.countOfClasses.toString())
+            view.price_edit.setText(mAbonement.price.toString())
+        }
+        val dialog=AlertDialog.Builder(activity)
                 .setView(view)
                 .setTitle("Абонемент")
-                .setPositiveButton("OK") { _, _ ->
+                .setPositiveButton("OK",null)
+                .setNegativeButton("Отмена",null)
+                .setCancelable(false)
+                .create()
+
+        dialog.setOnShowListener {
+            val okButton=dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            okButton.setOnClickListener {
+                val error= validateEditView(view.count_edit,view.price_edit)
+                if(!error){
                     mAbonement.countOfClasses = view.count_edit.text.toString().toInt()
                     mAbonement.price = view.price_edit.text.toString().toInt()
                     listener?.onAbonementFragmentFinish(mAbonement, mPosition)
                     dismiss()
                 }
-                .setNegativeButton("Отмена") { _, _ ->
-                    dismiss()
-                }
-                .create()
+            }
+        }
+        return dialog
     }
 
 
@@ -83,6 +87,8 @@ class SetAbonementDialogFragment : DialogFragment() {
         fun onAbonementFragmentFinish(abonement: Abonement, position: Int)
     }
 
+    private fun isAdding() = mPosition == -1
+
     companion object {
         private const val ARG_ITEM = "abonement"
         private const val ARG_ITEM_POSITION = "position"
@@ -96,6 +102,4 @@ class SetAbonementDialogFragment : DialogFragment() {
                     }
                 }
     }
-
-    private fun isAdd() = mPosition == -1
 }

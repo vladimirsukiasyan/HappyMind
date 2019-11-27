@@ -3,16 +3,19 @@ package company.sukiasyan.happymind.views.activities
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import com.google.android.gms.tasks.Task
+import com.google.firebase.storage.UploadTask
 import company.sukiasyan.happymind.models.Child
 import company.sukiasyan.happymind.models.Course
 import company.sukiasyan.happymind.utils.*
+import java.lang.Exception
 
 abstract class SetCourseBaseActivity : AppCompatActivity() {
     protected var mPosition = -1
     protected lateinit var course: Course
     protected lateinit var oldCourse: Course
 
-    protected lateinit var bundle: Bundle
+    protected var bundle=Bundle()
 
 
     protected fun uploadCourse() {
@@ -49,7 +52,6 @@ abstract class SetCourseBaseActivity : AppCompatActivity() {
         }
 
         fun downloadChildrenForUpdateClass(reference: String) {
-            //TODO это же заюзать когда учитель загружает детишек
             getDatabase().document(reference)
                     .get()
                     .addOnSuccessListener {
@@ -86,10 +88,21 @@ abstract class SetCourseBaseActivity : AppCompatActivity() {
 
 
     private fun updateCoursePhoto(id: String = course.id) {
-        getStorage().reference.child("courses").child(getUserBranch()).child(id).child("$id.jpg")
-                .putBytes(bundle.getByteArray(EXTRA_PHOTO))
+        val reference = getStorage().reference.child("courses").child(getUserBranch()).child(id).child("$id.jpg")
+        reference.putBytes(bundle.getByteArray(EXTRA_PHOTO))
+                .continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
+                    if (task.isSuccessful) {
+                        reference.downloadUrl
+                    }
+                    else{
+                        throw task.exception ?:Exception()
+                    }
+                }
                 .addOnSuccessListener {
                     Log.d(TAG, "SetCourseActivityFirst: updateCoursePhoto() course's photo has been updated")
+                    getDatabase().collection("filials").document(getUserBranch())
+                            .collection("courses").document(id)
+                            .update("photo_uri", it.toString())
                 }
     }
 

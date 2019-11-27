@@ -26,7 +26,7 @@
         style="@style/login_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="Далее"
         app:layout_constraintTop_toBottomOf="@id/email_input" />
 
 </android.support.constraint.ConstraintLayout>

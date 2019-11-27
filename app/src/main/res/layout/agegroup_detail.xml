@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:layout_height="match_parent"
     tools:context=".views.activities.SetCourseActivitySecond">
 
@@ -12,35 +14,62 @@
         android:layout_marginBottom="24dp"
         android:layout_marginTop="24dp">
 
-        <EditText
-            android:id="@+id/minAge"
-            style="@style/login_input"
-            android:hint="Минимальный возраст"
-            android:inputType="number"
-            app:layout_constraintBottom_toTopOf="@id/maxAge"
+        <TextView
+            android:id="@+id/minAge_label"
+            style="@style/edit_label"
+            android:labelFor="@id/minAge"
+            android:text="Минимальный возраст*"
+            app:layout_constraintBottom_toTopOf="@id/minAge"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/maxAge"
+            android:id="@+id/minAge"
             style="@style/login_input"
-            android:hint="Максимальный возраст"
             android:inputType="number"
-            app:layout_constraintBottom_toTopOf="@id/duration"
+            app:layout_constraintBottom_toTopOf="@id/maxAge_label"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/minAge_label" />
+
+        <TextView
+            android:id="@+id/maxAge_label"
+            style="@style/edit_label"
+            android:labelFor="@id/maxAge"
+            android:text="Максимальный возраст*"
+            app:layout_constraintBottom_toTopOf="@id/maxAge"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/minAge" />
 
         <EditText
+            android:id="@+id/maxAge"
+            style="@style/login_input"
+            android:inputType="number"
+            app:layout_constraintBottom_toTopOf="@id/duration_label"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/maxAge_label" />
+
+        <TextView
+            android:id="@+id/duration_label"
+            style="@style/edit_label"
+            android:labelFor="@id/duration"
+            android:text="Продолжительность занятия*"
+            app:layout_constraintBottom_toTopOf="@id/duration"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/maxAge" />
+
+        <EditText
             android:id="@+id/duration"
             style="@style/login_input"
-            android:hint="Продолжительность в минутах"
             android:inputType="number"
             app:layout_constraintBottom_toTopOf="@id/recycler_view_classes"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/maxAge" />
+            app:layout_constraintTop_toBottomOf="@id/duration_label" />
 
 
         <android.support.v7.widget.RecyclerView
@@ -93,22 +122,22 @@
             android:id="@+id/add_abonement_btn"
             style="@style/login_btn"
             android:text="Добавить абонемент"
+            app:layout_constraintBottom_toTopOf="@id/add_btn"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/add_btn"
             app:layout_constraintTop_toBottomOf="@id/recycler_view_abonements" />
 
         <Button
             android:id="@+id/add_btn"
             style="@style/login_btn"
+            android:layout_marginBottom="24dp"
             android:text="Добавить"
             android:visibility="gone"
-            android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintVertical_chainStyle="spread_inside"
-            app:layout_constraintTop_toBottomOf="@id/add_abonement_btn" />
+            app:layout_constraintTop_toBottomOf="@id/add_abonement_btn"
+            app:layout_constraintVertical_chainStyle="spread_inside" />
 
 
     </android.support.constraint.ConstraintLayout>

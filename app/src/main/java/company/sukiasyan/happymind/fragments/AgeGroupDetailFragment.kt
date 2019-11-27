@@ -14,7 +14,12 @@ import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Course.AgeGroup
 import company.sukiasyan.happymind.models.Course.AgeGroup.Abonement
 import company.sukiasyan.happymind.models.Course.AgeGroup.Class
+import company.sukiasyan.happymind.utils.ARG_ITEM_POSITION
 import company.sukiasyan.happymind.utils.TAG
+import company.sukiasyan.happymind.utils.interfaces.OnAgeGroupInteractionListener
+import company.sukiasyan.happymind.utils.interfaces.OnSetCourseActivityInteractionListener
+import company.sukiasyan.happymind.utils.showToast
+import company.sukiasyan.happymind.utils.validateEditView
 import company.sukiasyan.happymind.views.adapters.ClassAdapter
 import company.sukiasyan.happymind.views.adapters.SubscriptionAdapter
 import kotlinx.android.synthetic.main.agegroup_detail.view.*
@@ -27,12 +32,13 @@ import java.lang.RuntimeException
  * in two-pane mode (on tablets) or a [AgeGroupDetailActivity]
  * on handsets.
  */
-class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmentFinishListener, SetAbonementDialogFragment.OnAbonementFragmentFinishListener {
+class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmentFinishListener, SetAbonementDialogFragment.OnAbonementFragmentFinishListener, OnSetCourseActivityInteractionListener {
     private lateinit var ageGroup: AgeGroup
+    private lateinit var oldAgeGroup: AgeGroup
     private var mIsLargeLayout: Boolean = false
     private var mPosition: Int = -1
 
-    private var listener: OnAgeGroupFinishListener? = null
+    private var listener: OnAgeGroupInteractionListener? = null
 
     private val classClickListener: (View) -> Unit = {
         showClassDialog(it)
@@ -48,6 +54,7 @@ class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmen
         setHasOptionsMenu(true)
 
         ageGroup = arguments!!.getParcelable(ARG_ITEM)
+        oldAgeGroup = ageGroup.copy()
         mPosition = arguments!!.getInt(ARG_ITEM_POSITION)
 
         if (isAdding()) {
@@ -63,21 +70,23 @@ class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmen
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.agegroup_detail, container, false)
-        //TODO добавить подсказки TextView instead hint text
 
         with(rootView) {
-            minAge.setText(ageGroup.minAge.toString())
-            maxAge.setText(ageGroup.maxAge.toString())
-            duration.setText(ageGroup.duration.toString())
+            if (!isAdding()) {
+                minAge.setText(ageGroup.minAge.toString())
+                maxAge.setText(ageGroup.maxAge.toString())
+                duration.setText(ageGroup.duration.toString())
+            }
             if (isAdding() && mIsLargeLayout) {
                 add_btn.visibility = View.VISIBLE
             }
             add_class_btn.setOnClickListener { classClickListener(it) }
             add_abonement_btn.setOnClickListener { abonementClickListener(it) }
             add_btn.setOnClickListener {
-                setAllProperty()
-                listener?.onAgeGroupSaveListener(ageGroup, mPosition)
-
+                val error = setAndValidationAllProperty()
+                if (!error) {
+                    listener?.onAgeGroupSaveListenerActivity(ageGroup, mPosition)
+                }
             }
         }
 
@@ -85,10 +94,16 @@ class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmen
         rootView.recycler_view_classes.apply {
             layoutManager = LinearLayoutManager(activity)
             adapter = ClassAdapter(ageGroup.classes, classClickListener) { position ->
-                //delete click listener
-                Log.d(TAG, "AgeGroupDetailFragment: deleting position=$position , class=${ageGroup.classes[position]}")
-                ageGroup.classes.removeAt(position)
-                adapter?.notifyItemRemoved(position)
+                if(ageGroup.classes[position].children.size==0){
+                    //delete click listener
+                    Log.d(TAG, "AgeGroupDetailFragment: deleting position=$position , class=${ageGroup.classes[position]}")
+                    ageGroup.classes.removeAt(position)
+                    adapter?.notifyItemRemoved(position)
+                }
+                else{
+                    activity?.showToast("Невозможно удалить группу, пока в нее записаны дети!")
+                }
+
             }
         }
 
@@ -110,47 +125,60 @@ class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmen
         when (item.itemId) {
             R.id.action_done -> {
                 //call on only handset
-                setAllProperty()
-                listener?.onAgeGroupSaveListener(ageGroup, mPosition)
-                fragmentManager
-                        ?.beginTransaction()
-                        ?.remove(this)
-                        ?.commitNow()
+                val error = setAndValidationAllProperty()
+                if (!error) {
+                    listener?.onAgeGroupSaveListenerActivity(ageGroup, mPosition)
+                    fragmentManager
+                            ?.beginTransaction()
+                            ?.remove(this)
+                            ?.commitNow()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroyView() {
-        //save only if ageGroup is edditing
-        if (!isAdding() && !classFragmentFlag) {
-            setAllProperty()
-            listener?.onAgeGroupSaveListener(ageGroup, mPosition)
-        }
-        super.onDestroyView()
-    }
-
-    interface OnAgeGroupFinishListener {
-        fun onAgeGroupSaveListener(ageGroup: AgeGroup, position: Int)
-    }
-
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context is OnAgeGroupFinishListener) {
+        if (context is OnAgeGroupInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnAgeGroupFinishListener")
+            throw RuntimeException(context.toString() + " must implement OnAgeGroupInteractionListener")
         }
     }
 
-    private fun setAllProperty() {
-        //TODO сделать validate проверку и проверить не пересекаются ли возрастные группы
-        ageGroup.minAge = view?.minAge?.text.toString().toInt()
-        ageGroup.maxAge = view?.maxAge?.text.toString().toInt()
-        ageGroup.duration = view?.duration?.text.toString().toInt()
+    override fun onAgeGroupSaveListenerFragment(): Boolean {
+        //save only if ageGroup is editing
+        return if (isAdding()) false
+        else {
+            val error = setAndValidationAllProperty()
+            if (mIsLargeLayout && !error) {
+                listener?.onAgeGroupSaveListenerActivity(ageGroup, mPosition)
+                false
+            } else true
+        }
     }
 
-    //TODO определять по boolean флагу
+    private fun setAndValidationAllProperty(): Boolean {
+        view!!.let {
+            val errorEmptyEditText = validateEditView(it.minAge, it.maxAge, it.duration)
+            return if (!errorEmptyEditText) {
+                ageGroup.minAge = it.minAge.text.toString().toInt()
+                ageGroup.maxAge = it.maxAge.text.toString().toInt()
+                if (ageGroup.minAge > ageGroup.maxAge) {
+                    it.minAge.requestFocus()
+                    it.minAge.error = "Минимальный возраст должен быть не больше чем максимальный"
+                    return true
+                }
+                ageGroup.duration = it.duration.text.toString().toInt()
+                listener!!.onAgeGroupIntersectionValidation(ageGroup, oldAgeGroup, it.minAge)
+            } else {
+                true
+            }
+        }
+    }
+
+
     private fun isAdding() = mPosition == -1
 
     override fun onClassFragmentFinish(clazz: Class, position: Int) {
@@ -228,7 +256,6 @@ class AgeGroupDetailFragment : Fragment(), SetClassDialogFragment.OnClassFragmen
 
     companion object {
         const val ARG_ITEM = "ageGroup"
-        const val ARG_ITEM_POSITION = "position"
         @JvmStatic
         fun newInstance(ageGroup: AgeGroup, position: Int): AgeGroupDetailFragment =
                 AgeGroupDetailFragment().apply {

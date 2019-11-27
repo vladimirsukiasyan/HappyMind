@@ -7,9 +7,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import company.sukiasyan.happymind.R
-import company.sukiasyan.happymind.models.Course
-import company.sukiasyan.happymind.utils.*
-import company.sukiasyan.happymind.views.adapters.CoursesAdapter
+import company.sukiasyan.happymind.utils.ARG_ITEM_POSITION
+import company.sukiasyan.happymind.utils.EXTRA_COURSE
+import company.sukiasyan.happymind.utils.TAG
+import company.sukiasyan.happymind.utils.getUserRole
+import company.sukiasyan.happymind.views.adapters.CourseAdapter
 import kotlinx.android.synthetic.main.activity_courses.*
 import kotlinx.android.synthetic.main.content_courses.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -17,8 +19,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 
 class CoursesActivity : BasicActivity(1) {
 
-    private lateinit var viewAdapter: CoursesAdapter
-    private lateinit var viewManager: LinearLayoutManager
+    private lateinit var viewAdapter: CourseAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +32,6 @@ class CoursesActivity : BasicActivity(1) {
 
         //setting special view for type of user
         authenticationSpecialUI(savedInstanceState)
-
     }
 
     private fun authenticationSpecialUI(savedInstanceState: Bundle?) {
@@ -58,34 +58,28 @@ class CoursesActivity : BasicActivity(1) {
         setUpBottomNavigationView(role)
     }
 
-
-    override fun initContentUI() {
+    override fun childrenDownloadListener() {
+        drawerProfiles()
         downloadCourses()
     }
 
-    private fun downloadCourses() {
-        getDatabase().collection("filials").document(getUserBranch())
-                .collection("courses")
-                .get()
-                .addOnSuccessListener {
-                    courses = it.toObjects(Course::class.java)
+    override fun childChangedListener() {
+        downloadCourses()
+    }
 
-                    if (getUserRole() == "parent") {
-                        val age = activeChild.getAge()
-                        courses = courses.filter { course ->
-                            course.ageGroups.any {
-                                it.minAge <= age && it.maxAge >= age
-                            }
-                        }
-                    }
-                    Log.d(TAG, "CoursesActivity: downloadCourses() $courses")
-                    reInitViewAdapter()
-                }
+    override fun coursesDownloadListener() {
+        reInitContentUI()
+    }
+
+    override fun reInitContentUI() {
+        if (getUserRole() == "parent") {
+            filterCourseByAge()
+        }
+        viewAdapter.notifyDataSetChanged()
     }
 
     private fun setViewAdapter() {
-        viewManager = LinearLayoutManager(this)
-        viewAdapter = CoursesAdapter(this) { position, course_image ->
+        viewAdapter = CourseAdapter(this) { position, course_image ->
             var intent = Intent()
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, course_image, courses[position].id)
             when (getUserRole()) {
@@ -103,18 +97,9 @@ class CoursesActivity : BasicActivity(1) {
         //TODO удаление курса( МБ контекстное меню?!) или внутри SetCourseActivityFirst в Toolbar в Settings кнопку вставить??
         recycler_view.apply {
             setHasFixedSize(true)
-            layoutManager = viewManager
+            layoutManager = LinearLayoutManager(this@CoursesActivity)
             adapter = viewAdapter
         }
     }
 
-    private fun reInitViewAdapter() {
-        viewAdapter.notifyDataSetChanged()
-    }
-
-    override fun onRestart() {
-        Log.d(TAG, "onRestart: CoursesActivity")
-        downloadCourses()
-        super.onRestart()
-    }
 }

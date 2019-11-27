@@ -1,6 +1,7 @@
 package company.sukiasyan.happymind.fragments
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -9,17 +10,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.StringSignature
 import com.firebase.ui.storage.images.FirebaseImageLoader
 import company.sukiasyan.happymind.R
-import company.sukiasyan.happymind.utils.TAG
-import company.sukiasyan.happymind.utils.getChildReference
-import company.sukiasyan.happymind.utils.getStorage
-import company.sukiasyan.happymind.utils.getUserBranch
+import company.sukiasyan.happymind.models.Teacher
+import company.sukiasyan.happymind.utils.*
 import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.childCourse
 import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.course
 import company.sukiasyan.happymind.views.activities.CoursesDetailActivity.Companion.courseAgeGroup
+import company.sukiasyan.happymind.views.activities.TeacherDetailActivity
 import company.sukiasyan.happymind.views.adapters.ClassChildAdapter
-import kotlinx.android.synthetic.main.activity_courses_detail.*
+import kotlinx.android.synthetic.main.activity_course_detail.*
+import kotlinx.android.synthetic.main.fragment_description.*
 import kotlinx.android.synthetic.main.fragment_description.view.*
 
 
@@ -43,8 +45,7 @@ class DetailCourseFragments() : Fragment() {
                     rootView.item_duration.text = "${courseAgeGroup.duration} минут"
                     rootView.item_balance.text = "Остаток занятий: ${childCourse.abonement.balance}"
                     rootView.item_place.text = context!!.getUserBranch()
-                    downloadTeacherPhoto(rootView)
-                    rootView.item_teacher.text = course.teacher_uid //TODO Получить данные препода и сделать ссылку на страницу
+                    downloadTeacher(rootView)
 
                     val viewAdapter = ClassChildAdapter(courseAgeGroup.classes) { clazz, position, isChecked ->
                         activity?.fab?.show()
@@ -52,13 +53,13 @@ class DetailCourseFragments() : Fragment() {
                             childCourse.classes.add(clazz.classTime)
                             with(courseAgeGroup.classes[position]) {
                                 occupied_places++
-                                children.add(getChildReference())
+//                                children.add(getChildReference())
                             }
                         } else {
                             childCourse.classes.remove(clazz.classTime)
                             with(courseAgeGroup.classes[position]) {
                                 occupied_places--
-                                children.remove(getChildReference())
+//                                children.remove(getChildReference())
                             }
                         }
                     }
@@ -99,15 +100,29 @@ class DetailCourseFragments() : Fragment() {
         }
     }
 
+    //TODO СКАЧАТЬ УЧИТЕЛЯ
+    private fun downloadTeacher(view: View) {
+        var teacher: Teacher?
+        getDatabase().collection("teachers").document(course.teacher_uid)
+                .get()
+                .addOnSuccessListener {
+                    teacher=it.toObject(Teacher::class.java)
+                    view.item_teacher.text = "${teacher?.name} ${teacher?.last_name}"
+                    view.item_teacher.setOnClickListener {
+                        val intent= Intent(activity,TeacherDetailActivity::class.java)
+                        intent.putExtra(EXTRA_TEACHER,teacher)
+                        startActivity(intent)
+                    }
 
-    private fun downloadTeacherPhoto(view: View) {
-        val reference = getStorage().reference.child("users/teachers/${course.teacher_uid}.jpg")
-        Glide.with(this)
-                .using(FirebaseImageLoader())
-                .load(reference)
-                .centerCrop()
-                .error(R.drawable.ic_photo)
-                .placeholder(R.drawable.ic_photo)
-                .into(view.photo_teacher)
+                    val reference = getStorage().reference.child("users/teachers/${course.teacher_uid}.jpg")
+                    Glide.with(this)
+                            .using(FirebaseImageLoader())
+                            .load(reference)
+                            .dontAnimate()
+                            .signature(StringSignature(teacher?.photo_uri))
+                            .error(R.drawable.ic_photo)
+                            .placeholder(R.drawable.ic_photo)
+                            .into(view.photo_teacher)
+                }
     }
 }

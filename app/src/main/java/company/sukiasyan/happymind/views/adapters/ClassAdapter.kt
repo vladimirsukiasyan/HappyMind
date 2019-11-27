@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import company.sukiasyan.happymind.R
 import company.sukiasyan.happymind.models.Course.AgeGroup.Class
+import company.sukiasyan.happymind.utils.timeTemplate
 import kotlinx.android.synthetic.main.item_name_and_delete.view.*
 
 class ClassAdapter(private val classes: List<Class>, val clickListener: (View) -> Unit, val deleteClickListener: (Int) -> Unit) : RecyclerView.Adapter<ClassAdapter.ViewHolder>() {
@@ -24,7 +25,7 @@ class ClassAdapter(private val classes: List<Class>, val clickListener: (View) -
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(clazz: Class) {
             with(clazz.classTime) {
-                itemView.name.text = "${dayOfWeek.toUpperCase()}: $startClassHour:$startClassMinute- $endClassHour:$endClassMinute"
+                itemView.name.text = "${dayOfWeek.toUpperCase()}: ${ timeTemplate.format(startClassHour, startClassMinute)} - ${ timeTemplate.format(endClassHour, endClassMinute)}"
             }
             itemView.delete_btn.setOnClickListener {
                 deleteClickListener(adapterPosition)
